@@ -1,5 +1,5 @@
 
-# Extended Syscall Table for x86-64 Linux
+# Syscall Table for x86-64 Linux
 
 This file provides a reference table for system call numbers, their names, descriptions, and registers used. It is based on the x86-64 architecture for the Linux operating system.
 
