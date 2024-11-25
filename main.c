@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 size_t ft_strlen(const char *str);
 char *ft_strcpy(char *dest, const char *src);
@@ -195,24 +196,57 @@ int main() {
     i = 0;
     success = true;
 
-    while (test_cases[i + 1]) {
+    int fd = open("/dev/null", O_WRONLY); // Open /dev/null
+    if (fd == -1) {
+        return 1; // Handle error
+    }
+    while (test_cases[i]) {
         const char *msg = test_cases[i];
-        ssize_t custom_result = ft_write(1, msg, strlen(msg));
-        ssize_t std_result = write(1, msg, strlen(msg));
+        ssize_t custom_result = ft_write(fd, msg, strlen(msg));
+        ssize_t std_result = write(fd, msg, strlen(msg));
 
         if (custom_result != std_result) {
-            printf("C: %ld, S: %ld\n", custom_result, std_result);
             success = false;
             break;
         }
         i++;
     }
-
+    close(fd);
     // Print overall test result
     if (success)
         printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
     else
         printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
+    i = 0;
+    fd = open("ft_write_output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    while (test_cases[i]) {
+        const char *msg = test_cases[i];
 
+        printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
+        write(fd, "+ ", 2);
+        ssize_t std_result = write(fd, msg, strlen(msg));
+        write(fd, "\n- ", 3);
+        ssize_t custom_result = ft_write(fd, msg, strlen(msg));
+        write(fd, "\n\n", 2);
+
+        if (custom_result != std_result) {
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            // write(2, msg, strlen(msg));
+            // write(2, "\n", 1);
+            printf("  \t%s+ %ld%s\n", YELLOW, std_result, RESET);  // Correct result
+            printf("  \t%s- %ld%s\n", RED, custom_result, RESET); // Custom implementation result
+        } else {
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+        i++;
+    }
+    close(fd);
+    printf("%sif you need more detail, check 'ft_write_outpit.txt'%s\n", YELLOW, RESET);
+
+
+// - READ --------------------------------------------------------------------------
+    printf("\n%sread_\n%s", BOLD, RESET);
+    i = 0;
+    success = true;
 }
