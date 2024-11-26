@@ -31,3 +31,5 @@ manual_tests:
     - make manual
     - echo "Manual test binaries created. Test manually as required."
   when: manual
+
+  
