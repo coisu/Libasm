@@ -8,7 +8,7 @@ OBJ_DIR      = objs
 MANUAL_SRCS  = manual_srcs
 MANUAL_TESTS = manual_tests
 
-SRC          = $(addprefix $(SRC_DIR)/, ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s)
+SRC          = $(addprefix $(SRC_DIR)/, ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s)
 BONUS_SRC    = $(addprefix $(BONUS_DIR)/, ft_strlen_bonus.s ft_strcpy_bonus.s ft_strcmp_bonus.s ft_write_bonus.s ft_read_bonus.s ft_strdup_bonus.s)
 OBJ          = $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.s=.o)))
 BONUS_OBJ    = $(addprefix $(OBJ_DIR)/, $(notdir $(BONUS_SRC:.s=.o)))

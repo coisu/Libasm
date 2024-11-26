@@ -3,9 +3,9 @@ section .text
 
 ft_write:
     mov rax, 1            ; syscall number
-    mov rdi, rdi          ; 파일 디스크립터 (첫 번째 인자)
-    mov rsi, rsi          ; 버퍼 주소 (두 번째 인자)
-    mov rdx, rdx          ; 출력할 데이터 길이 (세 번째 인자)
+;   mov rdi, rdi          ; 2st parm
+;   mov rsi, rsi          ; 2nd parm
+;   mov rdx, rdx          ; 3rd parm
     syscall               ; 시스템 콜 실행
     ret                   ; 결과 반환
 

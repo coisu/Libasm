@@ -1,0 +1,33 @@
+stages:
+  - build
+  - test
+
+variables:
+  BUILD_DIR: objs
+
+before_script:
+  - mkdir -p $BUILD_DIR
+  - apt-get update && apt-get install -y nasm gcc make
+
+build:
+  stage: build
+  script:
+    - make all
+  artifacts:
+    paths:
+      - libasm.a
+
+test:
+  stage: test
+  script:
+    - make test
+    - echo "Testing completed successfully."
+  dependencies:
+    - build
+
+manual_tests:
+  stage: test
+  script:
+    - make manual
+    - echo "Manual test binaries created. Test manually as required."
+  when: manual

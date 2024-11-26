@@ -8,7 +8,7 @@ size_t ft_strlen(const char *str);
 char *ft_strcpy(char *dest, const char *src);
 int ft_strcmp(const char *s1, const char *s2);
 ssize_t ft_write(int fd, const void *buf, size_t count);
-
+ssize_t read(int fd, void *buf, size_t count);
 
 #define BUFFER_SIZE 2048
 #define MAX_PRINT_LEN 100
@@ -249,4 +249,17 @@ int main() {
     printf("\n%sread_\n%s", BOLD, RESET);
     i = 0;
     success = true;
+
+    const char *test_files[] = {
+        "test1.txt",
+        "test2.txt",
+        "test3.txt",
+        NULL
+    };
+
+    while (test_file[i])
+    {
+        const char *f = test_files[i];
+        fd = open(f, O_RDONLY);
+    }
 }
