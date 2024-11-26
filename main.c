@@ -257,7 +257,7 @@ int main() {
         NULL
     };
 
-    while (test_file[i])
+    while (test_files[i])
     {
         const char *f = test_files[i];
         fd = open(f, O_RDONLY);
