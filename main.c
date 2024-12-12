@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
+// #include <limits.h>
 
 size_t ft_strlen(const char *str);
 char *ft_strcpy(char *dest, const char *src);
@@ -246,6 +247,129 @@ int main() {
 
 
 // - READ --------------------------------------------------------------------------
+    printf("\n%sread_\n%s", BOLD, RESET);
+    i = 0;
+    success = true;
+
+    const char *test_files[] = {
+        "test1.txt",
+        "test2.txt",
+        "test3.txt",
+        NULL
+    };
+
+    while (test_files[i])
+    {
+        const char *f = test_files[i];
+        char *buf;
+        size_t buf_size = 4096; // 0x100000000
+
+        fd = open(f, O_RDONLY);
+        if (fd == -1)
+        {
+            perror("Error opening file");
+            i++;
+            continue;
+        }
+        
+        ssize_t custom_result = 0;
+        ssize_t std_result = 0;
+
+        while (buf_size > 0) 
+        {
+            buf = malloc(buf_size);
+            if (!buf)
+            {
+                perror("Malloc failed");
+                buf_size >>= 1;
+                continue;
+            }
+            lseek(fd, 0, SEEK_SET);
+            custom_result = ft_read(fd, buf, buf_size);
+            lseek(fd, 0, SEEK_SET);
+            std_result = read(fd, buf, buf_size);
+            free(buf);
+            if (custom_result == -1 || std_result == -1)
+            {
+                perror("Read failed");
+                buf_size >>= 1;
+            }
+            else
+                break;
+        }
+        close(fd);
+        if (custom_result != std_result)
+        {
+            success = false;
+            break;
+        }
+        i++;
+    }
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
+
+    i = 0;
+    while (test_files[i]) 
+    {
+    const char *f = test_files[i];
+    char *buf;
+    size_t buf_size = 4096; // 4 KB buffer size
+
+    printf("%sTesting file: %s%s\n", BOLD, f, RESET);
+
+    fd = open(f, O_RDONLY);
+    if (fd == -1) 
+    {
+        perror("Error opening file");
+        printf("%s%s@ Test failed: Unable to open file: %s%s\n", BOLD, RED, f, RESET);
+        i++;
+        continue;
+    }
+
+    ssize_t custom_result = 0;
+    ssize_t std_result = 0;
+
+    while (buf_size > 0) 
+    {
+        buf = malloc(buf_size);
+        if (!buf) 
+        {
+            perror("Malloc failed");
+            buf_size >>= 1;
+            continue;
+        }
+
+        lseek(fd, 0, SEEK_SET);
+        custom_result = ft_read(fd, buf, buf_size);
+        lseek(fd, 0, SEEK_SET);
+        std_result = read(fd, buf, buf_size);
+
+        free(buf);
+
+        if (custom_result == -1 || std_result == -1) 
+        {
+            perror("Read failed");
+            buf_size >>= 1;
+        } else 
+            break;
+    }
+
+    close(fd);
+
+    if (custom_result != std_result) 
+    {
+        printf("%s%s@ Test failed for file: %s%s\n", BOLD, RED, f, RESET);
+        printf("  \t%s+ Standard: %ld bytes%s\n", YELLOW, std_result, RESET);
+        printf("  \t%s- Custom: %ld bytes%s\n\n", RED, custom_result, RESET);
+    } 
+    else 
+        printf("%s%s@ Success for file: %s%s\n\n", BOLD, BRIGHT_GREEN, f, RESET);
+    i++;
+}
+
+// - STRDUP --------------------------------------------------------------------------
     printf("\n%sread_\n%s", BOLD, RESET);
     i = 0;
     success = true;
