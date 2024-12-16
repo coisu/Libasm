@@ -3,13 +3,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <stdlib.h>
 // #include <limits.h>
 
 size_t ft_strlen(const char *str);
 char *ft_strcpy(char *dest, const char *src);
 int ft_strcmp(const char *s1, const char *s2);
 ssize_t ft_write(int fd, const void *buf, size_t count);
-ssize_t read(int fd, void *buf, size_t count);
+ssize_t ft_read(int fd, void *buf, size_t count);
+char *ft_strdup(const char *s);
 
 #define BUFFER_SIZE 2048
 #define MAX_PRINT_LEN 100
@@ -370,20 +372,57 @@ int main() {
 }
 
 // - STRDUP --------------------------------------------------------------------------
-    printf("\n%sread_\n%s", BOLD, RESET);
+    printf("\n%sstrdup_\n%s", BOLD, RESET);
     i = 0;
     success = true;
 
-    const char *test_files[] = {
-        "test1.txt",
-        "test2.txt",
-        "test3.txt",
-        NULL
-    };
+    while (test_cases[i]) {
+        const char *src = test_cases[i];
+        char *custom_dup = ft_strdup(src);
+        char *std_dup = strdup(src);
 
-    while (test_files[i])
-    {
-        const char *f = test_files[i];
-        fd = open(f, O_RDONLY);
+        if (strcmp(custom_dup, std_dup) != 0) {
+            success = false;
+            free(custom_dup);
+            free(std_dup);
+            break;
+        }
+
+        free(custom_dup);
+        free(std_dup);
+        i++;
     }
+
+    // Print overall test result
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
+
+    // Detailed test case results
+    i = 0;
+    while (test_cases[i]) {
+        const char *src = test_cases[i];
+        char *custom_dup = ft_strdup(src);
+        char *std_dup = strdup(src);
+
+        printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
+
+        if (strcmp(custom_dup, std_dup) != 0) {
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ \"%.*s%s\"\n", 
+                YELLOW, MAX_PRINT_LEN, std_dup, 
+                strlen(std_dup) > MAX_PRINT_LEN ? "..." : "");
+            printf("  \t%s- \"%.*s%s\"\n", 
+                RED, MAX_PRINT_LEN, custom_dup, 
+                strlen(custom_dup) > MAX_PRINT_LEN ? "..." : "");
+        } else {
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+
+        free(custom_dup);
+        free(std_dup);
+        i++;
+    }
+
 }
