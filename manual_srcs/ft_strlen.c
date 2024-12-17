@@ -6,7 +6,7 @@ size_t ft_strlen(const char *str);
 int main(int argc, char **argv) {
     if (argc != 2)
     {
-        printf("Usage: .test_strlen.o [test string]\n");
+        printf("Usage: ./manual_tests/ft_strlen [test string]\n");
         return 1;
     }
     
