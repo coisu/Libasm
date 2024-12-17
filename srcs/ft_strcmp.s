@@ -45,3 +45,5 @@ ft_strcmp:
 ; ZF val == 0
 ; SF val < SF
 ; OF overflow
+
+section .note.GNU-stack noalloc noexec nowrite progbits

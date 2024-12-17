@@ -8,3 +8,5 @@ ft_read:
 ;   mov rdx, rdx
     syscall
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits

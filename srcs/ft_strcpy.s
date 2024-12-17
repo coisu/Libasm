@@ -19,6 +19,8 @@ ft_strcpy:
 
     ret                 ; rax(dest 주소) 반환
 
+section .note.GNU-stack noalloc noexec nowrite progbits
+
 
 ; cmp al, 0 + jne .loop   	    if ZF unset(al != 0), loop.
 ; cmp al, 0 + jnz .loop         if ZF unset(al != 0), loop.

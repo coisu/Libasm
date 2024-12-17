@@ -9,6 +9,7 @@ ft_write:
     syscall               ; 시스템 콜 실행
     ret                   ; 결과 반환
 
+section .note.GNU-stack noalloc noexec nowrite progbits
 
 
 ; syscall

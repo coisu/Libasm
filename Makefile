@@ -5,8 +5,8 @@ CC           = gcc
 NASM         = nasm
 AR           = ar
 CFLAGS       = -Wall -Wextra -Werror -fPIE
-NASMFLAGS    = -f elf64
-LDFLAGS      = -pie
+NASMFLAGS    = -f elf64 -g -F dwarf
+LDFLAGS      = -no-pie
 
 # Directories
 SRC_DIR      = srcs
@@ -56,7 +56,7 @@ re: fclean all
 
 # Test the library with the main file (automatic testing)
 test: $(NAME)
-	$(CC) $(CFLAGS) $(MAIN) $(NAME) -o $(TEST_BIN) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(MAIN) $(NAME) -o $(TEST_BIN) $(LDFLAGS) -Wl,--no-relax
 	./$(TEST_BIN)
 
 # Manual testing (STDIN-based mode)

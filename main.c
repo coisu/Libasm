@@ -381,15 +381,22 @@ int main() {
         char *custom_dup = ft_strdup(src);
         char *std_dup = strdup(src);
 
-        if (strcmp(custom_dup, std_dup) != 0) {
+        if (!custom_dup || !std_dup) { // Memory allocation failure
             success = false;
-            free(custom_dup);
-            free(std_dup);
+            // free(custom_dup);
+            // free(std_dup);
             break;
         }
 
-        free(custom_dup);
-        free(std_dup);
+        if (strcmp(custom_dup, std_dup) != 0) { // String comparison
+            success = false;
+            // free(custom_dup);
+            // free(std_dup);
+            break;
+        }
+
+        // free(custom_dup);
+        // free(std_dup);
         i++;
     }
 
@@ -408,7 +415,9 @@ int main() {
 
         printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
 
-        if (strcmp(custom_dup, std_dup) != 0) {
+        if (!custom_dup || !std_dup) {
+            printf("%s%s@ Memory allocation failed%s\n", BOLD, RED, RESET);
+        } else if (strcmp(custom_dup, std_dup) != 0) {
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             printf("  \t%s+ \"%.*s%s\"\n", 
                 YELLOW, MAX_PRINT_LEN, std_dup, 
@@ -420,8 +429,8 @@ int main() {
             printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
 
-        free(custom_dup);
-        free(std_dup);
+        // free(custom_dup);
+        // free(std_dup);
         i++;
     }
 
