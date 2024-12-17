@@ -22,12 +22,14 @@ ft_strcmp:
 
 .diff:
     sub rcx, rdx            ; rcx = rcx - rdx (ASCII)
-    mov rax, rcx            ; 결과를 rax에 저장
+    mov rax, rcx            ; save result into rax
     ret
 
 .end:
     xor rax, rax            ; if equal rax = 0
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits
 
 
 ; movzx
@@ -45,5 +47,3 @@ ft_strcmp:
 ; ZF val == 0
 ; SF val < SF
 ; OF overflow
-
-section .note.GNU-stack noalloc noexec nowrite progbits

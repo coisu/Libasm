@@ -29,3 +29,5 @@ ft_strdup:
 .null_input:
     xor rax, rax                ; Return NULL
     ret
+
+section .note.GNU-stack noalloc noexec nowrite progbits

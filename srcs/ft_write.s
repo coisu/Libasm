@@ -6,8 +6,8 @@ ft_write:
 ;   mov rdi, rdi          ; 2st parm
 ;   mov rsi, rsi          ; 2nd parm
 ;   mov rdx, rdx          ; 3rd parm
-    syscall               ; 시스템 콜 실행
-    ret                   ; 결과 반환
+    syscall
+    ret
 
 section .note.GNU-stack noalloc noexec nowrite progbits
 
