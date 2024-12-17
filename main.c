@@ -55,33 +55,16 @@ int main() {
         const char *str = test_cases[i];
         size_t custom_len = ft_strlen(str);
         size_t std_len = strlen(str);
-        if (custom_len != std_len)
-        {
-            success = false;
-            break;
-        }
-        i++;
-    }
-    if (success)
-        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
-    else
-        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
-    i = 0;
-    while (test_cases[i])
-    {
-        const char *str = test_cases[i];
-        size_t custom_len = ft_strlen(str);
-        size_t std_len = strlen(str);
 
-        // Print input string
         printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
         // printf("  Input string: \"%s%s%s\"\n", BOLD, str, RESET);
-
+        
         // Result check
         if (custom_len != std_len) {
+            success = false;
             printf("%s%s@ test failed%s\n", BOLD, RED, RESET);
-            printf("  \t%s+%zu%s\n", YELLOW, std_len, RESET);  // Correct result
-            printf("  \t%s-%zu%s\n", RED, custom_len, RESET); // Custom implementation result
+            printf("  \t%s+%zu%s\n", YELLOW, std_len, RESET);
+            printf("  \t%s-%zu%s\n", RED, custom_len, RESET);
         } else {
             printf("%s%s@ Success%s\n", BOLD, BRIGHT_GREEN, RESET);
         }
@@ -89,6 +72,12 @@ int main() {
 
         i++;
     }
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
+    i = 0;
+    
 
 // - STRCPY --------------------------------------------------------------------------
     printf("\n%sstrcpy_\n%s", BOLD, RESET);
@@ -102,34 +91,10 @@ int main() {
 
         ft_strcpy(custom_dest, src);
         strcpy(std_dest, src);
-
-        if (strcmp(custom_dest, std_dest) != 0) {
-            success = false;
-            break;
-        }
-        free(custom_dest);
-        free(std_dest);
-        i++;
-    }
-
-    // Print overall test result
-    if (success)
-        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
-    else
-        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
-
-    // Detailed test case results
-    i = 0;
-    while (test_cases[i]) {
-        const char *src = test_cases[i];
-        char *custom_dest = malloc(sizeof(char) * (strlen(src) + 1));
-        char *std_dest = malloc(sizeof(char) * (strlen(src) + 1));
-
-        ft_strcpy(custom_dest, src);
-        strcpy(std_dest, src);
         printf("%s%sTest case %d:%s\n", RESET, BOLD, i + 1, RESET);
 
         if (strcmp(custom_dest, std_dest) != 0) {
+            success = false;
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             printf("  \t%s+ \"%.*s%s\"\n", 
                 YELLOW, MAX_PRINT_LEN, std_dest, 
@@ -140,33 +105,17 @@ int main() {
         } else {
             printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
-        free(custom_dest);
-        free(std_dest);
 
         // Debugging: Print ASCII values for more clarity
         // printf("  ASCII Comparison:\n");
         // for (size_t j = 0; j < strlen(src) + 1; ++j) {
         //     printf("  [%zu]: Expected=%02X Got=%02X\n", j, (unsigned char)std_dest[j], (unsigned char)custom_dest[j]);
         // }
+        
+        free(custom_dest);
+        free(std_dest);
+
         printf("\n");
-        i++;
-    }
-
-// - STRCMP --------------------------------------------------------------------------
-    printf("\n%sstrcmp_\n%s", BOLD, RESET);
-    i = 0;
-    success = true;
-    
-    while (test_cases[i + 1]) {
-        const char *str1 = test_cases[i];
-        const char *str2 = test_cases[(i + 1) % (sizeof(test_cases) / sizeof(test_cases[0]))];
-        int custom_result = ft_strcmp(str1, str2);
-        int std_result = strcmp(str1, str2);
-
-        if (custom_result != std_result) {
-            success = false;
-            break;
-        }
         i++;
     }
 
@@ -176,57 +125,64 @@ int main() {
     else
         printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
-    // Detailed test case results
+
+// - STRCMP --------------------------------------------------------------------------
+    printf("\n%sstrcmp_\n%s", BOLD, RESET);
     i = 0;
-    while (test_cases[i + 1]) {
+    success = true;
+
+    while (test_cases[i]) {
         const char *str1 = test_cases[i];
-        const char *str2 = test_cases[(i + 1) % (sizeof(test_cases) / sizeof(test_cases[0]))]; // 순환 비교
-        int custom_result = ft_strcmp(str1, str2);
-        int std_result = strcmp(str1, str2);
+        const char *str2 = test_cases[(i + 1) % (sizeof(test_cases) / sizeof(test_cases[0]) - 1)];
 
         printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
-        // printf("  str1: \"%s\"\n", str1);
-        // printf("  str2: \"%s\"\n", str2);
 
-        if (custom_result != std_result) {
-            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
-            printf("  \t%s+ %d%s\n", YELLOW, std_result, RESET);  // Correct result
-            printf("  \t%s- %d%s\n", RED, custom_result, RESET); // Custom implementation result
+        // 1. Test same string comparison
+        int custom_result_same = ft_strcmp(str1, str1);
+        int std_result_same = strcmp(str1, str1);
+
+        if (custom_result_same != std_result_same) {
+            success = false;
+            printf("%s%s@ Same string test failed%s\n", BOLD, RED, RESET);
+            // printf("  str1: \"%s\"\n", str1);
+            // printf("  str2: \"%s\"\n", str1);
+            printf("  \t%s+ %d%s\n", YELLOW, std_result_same, RESET);
+            printf("  \t%s- %d%s\n", RED, custom_result_same, RESET);
         } else {
-            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+            printf("%s%s@ Same string test passed%s\n", BOLD, BRIGHT_GREEN, RESET);
         }
+
+        // 2. Test different string comparison
+        int custom_result_diff = ft_strcmp(str1, str2);
+        int std_result_diff = strcmp(str1, str2);
+
+        if (custom_result_diff != std_result_diff) {
+            success = false;
+            printf("%s%s@ Different string test failed%s\n", BOLD, RED, RESET);
+            // printf("  str1: \"%s\"\n", str1);
+            // printf("  str2: \"%s\"\n", str2);
+            printf("  \t%s+ %d%s\n", YELLOW, std_result_diff, RESET);
+            printf("  \t%s- %d%s\n", RED, custom_result_diff, RESET);
+        } else {
+            printf("%s%s@ Different string test passed%s\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+
+        printf("\n");
         i++;
     }
+
+    // Print overall test result
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
 // - WRITE --------------------------------------------------------------------------
     printf("\n%swrite_\n%s", BOLD, RESET);
     i = 0;
     success = true;
 
-    int fd = open("/dev/null", O_WRONLY); // Open /dev/null
-    if (fd == -1) {
-        return 1; // Handle error
-    }
-    while (test_cases[i]) {
-        const char *msg = test_cases[i];
-        ssize_t custom_result = ft_write(fd, msg, strlen(msg));
-        ssize_t std_result = write(fd, msg, strlen(msg));
-
-        if (custom_result != std_result) {
-            success = false;
-            break;
-        }
-        i++;
-    }
-    close(fd);
-    // Print overall test result
-    if (success)
-        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
-    else
-        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
-
-    i = 0;
-    fd = open("ft_write_output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    int fd = open("ft_write_output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     while (test_cases[i]) {
         const char *msg = test_cases[i];
 
@@ -238,19 +194,28 @@ int main() {
         write(fd, "\n\n", 2);
 
         if (custom_result != std_result) {
+            success = false;
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             // write(2, msg, strlen(msg));
             // write(2, "\n", 1);
-            printf("  \t%s+ %ld%s\n", YELLOW, std_result, RESET);  // Correct result
-            printf("  \t%s- %ld%s\n", RED, custom_result, RESET); // Custom implementation result
+            printf("  \t%s+ %ld%s\n", YELLOW, std_result, RESET);
+            printf("  \t%s- %ld%s\n", RED, custom_result, RESET);
         } else {
             printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
         i++;
     }
     close(fd);
-    printf("%sif you need more detail, check 'ft_write_outpit.txt'%s\n", YELLOW, RESET);
+    printf("%sif you need more detail, check 'ft_write_output.txt'%s\n", YELLOW, RESET);
 
+    // Print overall test result
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
+
+    i = 0;
+    
 
 // - READ --------------------------------------------------------------------------
     printf("\n%sread_\n%s", BOLD, RESET);
@@ -265,59 +230,6 @@ int main() {
     };
 
     while (test_files[i])
-    {
-        const char *f = test_files[i];
-        char *buf;
-        size_t buf_size = 4096; // 0x100000000
-
-        fd = open(f, O_RDONLY);
-        if (fd == -1)
-        {
-            perror("Error opening file");
-            i++;
-            continue;
-        }
-        
-        ssize_t custom_result = 0;
-        ssize_t std_result = 0;
-
-        while (buf_size > 0) 
-        {
-            buf = malloc(buf_size);
-            if (!buf)
-            {
-                perror("Malloc failed");
-                buf_size >>= 1;
-                continue;
-            }
-            lseek(fd, 0, SEEK_SET);
-            custom_result = ft_read(fd, buf, buf_size);
-            lseek(fd, 0, SEEK_SET);
-            std_result = read(fd, buf, buf_size);
-            free(buf);
-            if (custom_result == -1 || std_result == -1)
-            {
-                perror("Read failed");
-                buf_size >>= 1;
-            }
-            else
-                break;
-        }
-        close(fd);
-        if (custom_result != std_result)
-        {
-            success = false;
-            break;
-        }
-        i++;
-    }
-    if (success)
-        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
-    else
-        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
-
-    i = 0;
-    while (test_files[i]) 
     {
         const char *f = test_files[i];
         char *buf;
@@ -346,7 +258,6 @@ int main() {
                 buf_size >>= 1;
                 continue;
             }
-
             lseek(fd, 0, SEEK_SET);
             custom_result = ft_read(fd, buf, buf_size);
             lseek(fd, 0, SEEK_SET);
@@ -366,14 +277,21 @@ int main() {
 
         if (custom_result != std_result) 
         {
+            success = false;
             printf("%s%s@ Test failed for file: %s%s\n", BOLD, RED, f, RESET);
             printf("  \t%s+ Standard: %ld bytes%s\n", YELLOW, std_result, RESET);
-            printf("  \t%s- Custom: %ld bytes%s\n\n", RED, custom_result, RESET);
+            printf("  \t%s- Custom  : %ld bytes%s\n\n", RED, custom_result, RESET);
         } 
         else 
             printf("%s%s@ Success for file: %s%s\n\n", BOLD, BRIGHT_GREEN, f, RESET);
         i++;
     }
+    if (success)
+        printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
+    else
+        printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
+
+    
 
 // - STRDUP --------------------------------------------------------------------------
     printf("\n%sstrdup_\n%s", BOLD, RESET);
@@ -382,18 +300,26 @@ int main() {
 
     while (test_cases[i]) {
         char *src = (char *)test_cases[i];
-        char *custom_dest = malloc(sizeof(char) * (strlen(src) + 1));
-        char *std_dest = malloc(sizeof(char) * (strlen(src) + 1));
+        char *ft_d = ft_strdup(src);
+        char *std_d = strdup(src);
 
-        custom_dest = ft_strdup(src);
-        std_dest = strdup(src);
+        printf("%s%sTest case %d:%s\n", RESET, BOLD, i + 1, RESET);
 
-        if (strcmp(custom_dest, std_dest) != 0) {
+        if (strcmp(ft_d, std_d) != 0) {
             success = false;
-            break;
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ \"%.*s%s\"\n", 
+                YELLOW, MAX_PRINT_LEN, std_d, 
+                strlen(std_d) > MAX_PRINT_LEN ? "..." : "");
+            printf("  \t%s- \"%.*s%s\"\n", 
+                RED, MAX_PRINT_LEN, ft_d, 
+                strlen(ft_d) > MAX_PRINT_LEN ? "..." : "");
+        } else {
+            printf("%s%s@ Success%s\n", BOLD, BRIGHT_GREEN, RESET);
         }
-        free(custom_dest);
-        free(std_dest);
+        free(ft_d);
+        free(std_d);
+        printf("\n");
         i++;
     }
 
@@ -403,30 +329,5 @@ int main() {
     else
         printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
-    i = 0;
-    while (test_cases[i]) {
-        char *src = (char *)test_cases[i];
-        char *ft_d = NULL;
-        char *std_d = NULL;
-        ft_d = ft_strdup(src);
-        std_d = strdup(src);
-        printf("%s%sTest case %d:%s\n", RESET, BOLD, i + 1, RESET);
-
-        if (strcmp(ft_d, std_d) != 0) {
-            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
-            printf("  \t%s+ \"%.*s%s\"\n", 
-                YELLOW, MAX_PRINT_LEN, std_d, 
-                strlen(std_d) > MAX_PRINT_LEN ? "..." : "");
-            printf("  \t%s- \"%.*s%s\"\n", 
-                RED, MAX_PRINT_LEN, ft_d, 
-                strlen(ft_d) > MAX_PRINT_LEN ? "..." : "");
-        } else {
-            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
-        }
-        free(ft_d);
-        free(std_d);
-        printf("\n");
-        i++;
-    }
 
 }
