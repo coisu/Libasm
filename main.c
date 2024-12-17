@@ -20,7 +20,7 @@ int main() {
     const char *test_cases[] = {
         "Hello, World!",
         "0",
-        "0",
+        "000\0",
         "",
         "1234567890",
         "A random string",
@@ -97,16 +97,18 @@ int main() {
 
     while (test_cases[i]) {
         const char *src = test_cases[i];
-        char custom_dest[BUFFER_SIZE] = {0};
-        char std_dest[BUFFER_SIZE] = {0};
+        char *custom_dest = malloc(sizeof(char) * (strlen(src) + 1));
+        char *std_dest = malloc(sizeof(char) * (strlen(src) + 1));
 
         ft_strcpy(custom_dest, src);
         strcpy(std_dest, src);
 
-        if (memcmp(custom_dest, std_dest, strlen(src) + 1) != 0) {
+        if (strcmp(custom_dest, std_dest) != 0) {
             success = false;
             break;
         }
+        free(custom_dest);
+        free(std_dest);
         i++;
     }
 
@@ -120,14 +122,14 @@ int main() {
     i = 0;
     while (test_cases[i]) {
         const char *src = test_cases[i];
-        char custom_dest[BUFFER_SIZE] = {0};
-        char std_dest[BUFFER_SIZE] = {0};
+        char *custom_dest = malloc(sizeof(char) * (strlen(src) + 1));
+        char *std_dest = malloc(sizeof(char) * (strlen(src) + 1));
 
         ft_strcpy(custom_dest, src);
         strcpy(std_dest, src);
         printf("%s%sTest case %d:%s\n", RESET, BOLD, i + 1, RESET);
 
-        if (memcmp(custom_dest, std_dest, strlen(src) + 1) != 0) {
+        if (strcmp(custom_dest, std_dest) != 0) {
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             printf("  \t%s+ \"%.*s%s\"\n", 
                 YELLOW, MAX_PRINT_LEN, std_dest, 
@@ -138,6 +140,8 @@ int main() {
         } else {
             printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
+        free(custom_dest);
+        free(std_dest);
 
         // Debugging: Print ASCII values for more clarity
         // printf("  ASCII Comparison:\n");
@@ -315,61 +319,61 @@ int main() {
     i = 0;
     while (test_files[i]) 
     {
-    const char *f = test_files[i];
-    char *buf;
-    size_t buf_size = 4096; // 4 KB buffer size
+        const char *f = test_files[i];
+        char *buf;
+        size_t buf_size = 4096; // 4 KB buffer size
 
-    printf("%sTesting file: %s%s\n", BOLD, f, RESET);
+        printf("%sTesting file: %s%s\n", BOLD, f, RESET);
 
-    fd = open(f, O_RDONLY);
-    if (fd == -1) 
-    {
-        perror("Error opening file");
-        printf("%s%s@ Test failed: Unable to open file: %s%s\n", BOLD, RED, f, RESET);
-        i++;
-        continue;
-    }
-
-    ssize_t custom_result = 0;
-    ssize_t std_result = 0;
-
-    while (buf_size > 0) 
-    {
-        buf = malloc(buf_size);
-        if (!buf) 
+        fd = open(f, O_RDONLY);
+        if (fd == -1) 
         {
-            perror("Malloc failed");
-            buf_size >>= 1;
+            perror("Error opening file");
+            printf("%s%s@ Test failed: Unable to open file: %s%s\n", BOLD, RED, f, RESET);
+            i++;
             continue;
         }
 
-        lseek(fd, 0, SEEK_SET);
-        custom_result = ft_read(fd, buf, buf_size);
-        lseek(fd, 0, SEEK_SET);
-        std_result = read(fd, buf, buf_size);
+        ssize_t custom_result = 0;
+        ssize_t std_result = 0;
 
-        free(buf);
-
-        if (custom_result == -1 || std_result == -1) 
+        while (buf_size > 0) 
         {
-            perror("Read failed");
-            buf_size >>= 1;
-        } else 
-            break;
+            buf = malloc(buf_size);
+            if (!buf) 
+            {
+                perror("Malloc failed");
+                buf_size >>= 1;
+                continue;
+            }
+
+            lseek(fd, 0, SEEK_SET);
+            custom_result = ft_read(fd, buf, buf_size);
+            lseek(fd, 0, SEEK_SET);
+            std_result = read(fd, buf, buf_size);
+
+            free(buf);
+
+            if (custom_result == -1 || std_result == -1) 
+            {
+                perror("Read failed");
+                buf_size >>= 1;
+            } else 
+                break;
+        }
+
+        close(fd);
+
+        if (custom_result != std_result) 
+        {
+            printf("%s%s@ Test failed for file: %s%s\n", BOLD, RED, f, RESET);
+            printf("  \t%s+ Standard: %ld bytes%s\n", YELLOW, std_result, RESET);
+            printf("  \t%s- Custom: %ld bytes%s\n\n", RED, custom_result, RESET);
+        } 
+        else 
+            printf("%s%s@ Success for file: %s%s\n\n", BOLD, BRIGHT_GREEN, f, RESET);
+        i++;
     }
-
-    close(fd);
-
-    if (custom_result != std_result) 
-    {
-        printf("%s%s@ Test failed for file: %s%s\n", BOLD, RED, f, RESET);
-        printf("  \t%s+ Standard: %ld bytes%s\n", YELLOW, std_result, RESET);
-        printf("  \t%s- Custom: %ld bytes%s\n\n", RED, custom_result, RESET);
-    } 
-    else 
-        printf("%s%s@ Success for file: %s%s\n\n", BOLD, BRIGHT_GREEN, f, RESET);
-    i++;
-}
 
 // - STRDUP --------------------------------------------------------------------------
     printf("\n%sstrdup_\n%s", BOLD, RESET);
@@ -377,26 +381,19 @@ int main() {
     success = true;
 
     while (test_cases[i]) {
-        const char *src = test_cases[i];
-        char *custom_dup = ft_strdup(src);
-        char *std_dup = strdup(src);
+        char *src = (char *)test_cases[i];
+        char *custom_dest = malloc(sizeof(char) * (strlen(src) + 1));
+        char *std_dest = malloc(sizeof(char) * (strlen(src) + 1));
 
-        if (!custom_dup || !std_dup) { // Memory allocation failure
+        custom_dest = ft_strdup(src);
+        std_dest = strdup(src);
+
+        if (strcmp(custom_dest, std_dest) != 0) {
             success = false;
-            // free(custom_dup);
-            // free(std_dup);
             break;
         }
-
-        if (strcmp(custom_dup, std_dup) != 0) { // String comparison
-            success = false;
-            // free(custom_dup);
-            // free(std_dup);
-            break;
-        }
-
-        // free(custom_dup);
-        // free(std_dup);
+        free(custom_dest);
+        free(std_dest);
         i++;
     }
 
@@ -406,31 +403,29 @@ int main() {
     else
         printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
-    // Detailed test case results
     i = 0;
     while (test_cases[i]) {
-        const char *src = test_cases[i];
-        char *custom_dup = ft_strdup(src);
-        char *std_dup = strdup(src);
+        char *src = (char *)test_cases[i];
+        char *ft_d = NULL;
+        char *std_d = NULL;
+        ft_d = ft_strdup(src);
+        std_d = strdup(src);
+        printf("%s%sTest case %d:%s\n", RESET, BOLD, i + 1, RESET);
 
-        printf("%sTest case %d:%s\n", BOLD, i + 1, RESET);
-
-        if (!custom_dup || !std_dup) {
-            printf("%s%s@ Memory allocation failed%s\n", BOLD, RED, RESET);
-        } else if (strcmp(custom_dup, std_dup) != 0) {
+        if (strcmp(ft_d, std_d) != 0) {
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             printf("  \t%s+ \"%.*s%s\"\n", 
-                YELLOW, MAX_PRINT_LEN, std_dup, 
-                strlen(std_dup) > MAX_PRINT_LEN ? "..." : "");
+                YELLOW, MAX_PRINT_LEN, std_d, 
+                strlen(std_d) > MAX_PRINT_LEN ? "..." : "");
             printf("  \t%s- \"%.*s%s\"\n", 
-                RED, MAX_PRINT_LEN, custom_dup, 
-                strlen(custom_dup) > MAX_PRINT_LEN ? "..." : "");
+                RED, MAX_PRINT_LEN, ft_d, 
+                strlen(ft_d) > MAX_PRINT_LEN ? "..." : "");
         } else {
             printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
-
-        // free(custom_dup);
-        // free(std_dup);
+        free(ft_d);
+        free(std_d);
+        printf("\n");
         i++;
     }
 
