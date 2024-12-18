@@ -1,4 +1,4 @@
-- [Automated Test](#automated-test)
+- [Automated Test](#1---1-automated-test)
 - [Manual Test](#manual-test)
 - [Assembly Basic - Register](#assembly-basic)
 - [Challenges and Failures](#challenges-and-failures)
