@@ -4,10 +4,10 @@
 - [Challenges and Failures](#challenges-and-failures)
 - [Tech Stack](#tech-stack)
 
-Libasm
+# Libasm
 Master the art of low-level programming by implementing standard C library functions in Assembly language. Dive deeper into performance optimization and gain a better understanding of how functions work at the machine level!
 
-# Features
+## Features
 - Implement core C library functions in x86-64 Assembly (e.g., `strlen`, `strcpy`, `strcmp`, `write`, `read`, `strdup`).
 - Develop an optimized and minimalistic approach to function implementations.
 - Experience the intricacies of working directly with registers and memory.
@@ -240,8 +240,13 @@ Understanding registers is crucial for assembly programming. Familiarize yoursel
 
 
 ## Challenges and Failures
-While Implementing ft_strcpy
-- Below is a summary of the issues encountered while implementing the ft_strcpy function in assembly, the reasons behind the failures, and the lessons learned from each experience.
+
+> Below is a summary of the issues encountered while implementing the `ft_strcpy` function in assembly, the reasons behind the failures, and the lessons learned from each experience.
+
+#### Original Approach with `lodsb`, `stosb`, and `jne`
+What was tried:
+> I aimed to simplify memory operations by using `lodsb` to load bytes and `stosb` to store bytes, combined with conditional jumps (`jne`) for null termination checks.
+
 
 ### Original Code:
 ```asm
@@ -265,24 +270,44 @@ ft_strcpy:
 
 ---
 
-### **Issues**
+### **Issues and Lessons Learned**
 
-1. **Implicit Behavior of `lodsb` and `stosb`**:  
-   - Both `lodsb` and `stosb` modify the `rsi` and `rdi` registers implicitly by incrementing or decrementing them depending on the direction flag (`DF`).  
-   - While this might work in isolated tests, it introduces potential bugs when `ft_strcpy` is used in a context like `ft_strdup`, where the integrity of `rsi` and `rdi` needs to be preserved for proper memory operations.  
+#### **Implicit Behavior of `lodsb` and `stosb`**
+- The `lodsb` and `stosb` instructions implicitly modify the `rsi` and `rdi` registers by incrementing or decrementing them based on the direction flag (`DF`).
+- While this implicit behavior worked fine in isolated tests, it caused conflicts when `ft_strcpy` was called within `ft_strdup`, as these registers needed to remain intact for correct memory operations.
 
-2. **Direction Flag Dependency (`cld`)**:  
-   - The direction flag (`DF`) is explicitly cleared with `cld` at the start of the function to ensure forward memory traversal.  
-   - If another function sets `DF` before calling `ft_strcpy` but does not reset it, the behavior of `lodsb` and `stosb` becomes unpredictable.  
-   - This makes `ft_strcpy` context-dependent and fragile when integrated into a broader program.  
+#### **Direction Flag Dependency (`cld`)**
+- The `cld` instruction was used to explicitly clear the direction flag (`DF`) to ensure forward memory traversal.
+- However, if another function altered the `DF` before calling `ft_strcpy` and failed to reset it, the behavior of `lodsb` and `stosb` became unpredictable.
+- This reliance on external factors made `ft_strcpy` fragile and context-dependent in broader programs.
 
-3. **Implicit Logic Reduces Debuggability**:  
-   - Since `lodsb` and `stosb` hide the memory operations, debugging becomes challenging as the explicit state of `rsi` and `rdi` is not directly visible.  
-   - This leads to errors that are harder to trace back to their source, particularly in larger or nested contexts.  
+#### **Reduced Debuggability**
+- The implicit memory operations of `lodsb` and `stosb` made debugging more difficult, as changes to `rsi` and `rdi` were not directly visible.
+- Errors in larger or nested contexts were harder to trace, making the debugging process inefficient and time-consuming.
 
-4. **Register Modifications in Broader Contexts**:  
-   - When `ft_strcpy` is called inside `ft_strdup`, modifying `rsi` and `rdi` causes unexpected side effects because these registers are shared between the two functions.  
-   - The implicit nature of `lodsb` and `stosb` exacerbates the problem, leading to incorrect copying behavior.  
+#### **Register Modifications in Broader Contexts**
+- The shared usage of `rsi` and `rdi` between `ft_strcpy` and `ft_strdup` led to unexpected side effects.
+- The implicit changes caused by `lodsb` and `stosb` exacerbated these issues, resulting in incorrect copying behavior or memory corruption.
+
+
+### **What I Learned:**  
+- This approach, while elegant for small, isolated use cases, introduces implicit behavior that can conflict in larger, nested contexts. Understanding these limitations helped refine my future approaches to be more explicit and robust.
+
+#### **Explicit Behavior is Key**
+- Implicit register modifications, while convenient, can introduce hidden dependencies that conflict with other parts of the program.
+- Explicitly managing registers and memory operations reduces the risk of unintended side effects and improves maintainability.
+
+#### **Avoid Contextual Fragility**
+- Functions should not rely on external conditions (e.g., the state of the direction flag) to operate correctly.
+- By designing `ft_strcpy` to be self-contained and independent, it became more robust and reusable.
+
+#### **Clarity Over Complexity**
+- While advanced instructions like `lodsb` and `stosb` can simplify code in specific cases, they obscure the logic in more complex, nested scenarios.
+- Using straightforward, explicit memory operations improved both readability and reliability.
+
+This experience emphasized the importance of balancing advanced instruction usage with clarity and robustness, leading to a more reliable and maintainable implementation of `ft_strcpy`.
+
+
 
 ---
 
@@ -309,21 +334,21 @@ ft_strcpy:
 
 ### **Key Changes**
 
-1. **Explicit Control**:  
+1. **Explicit Control**  
    - Replaced `lodsb` and `stosb` with explicit `mov` instructions:  
      - `mov dh, byte [rsi + rcx]` for loading.  
      - `mov byte [rdi + rcx], dh` for storing.  
-   - This ensures that `rsi` and `rdi` are not modified unintentionally.  
+   - This ensures that `rsi` and `rdi` are not modified unintentionally.
 
-2. **Removed Direction Flag Dependency**:  
+2. **Removed Direction Flag Dependency**  
    - Eliminated the need for `cld` by using explicit address calculations (`rsi + rcx`, `rdi + rcx`).  
-   - This makes the function independent of the direction flag, ensuring consistent behavior.  
+   - This makes the function independent of the direction flag, ensuring consistent behavior.
 
-3. **Improved Debuggability**:  
-   - By explicitly showing all memory operations, the function becomes easier to debug and trace in case of errors.  
+3. **Improved Debuggability**  
+   - By explicitly showing all memory operations, the function becomes easier to debug and trace in case of errors.
 
-4. **Register Isolation**:  
-   - The final code ensures that only `dh` is used for temporary storage, avoiding any modifications to critical registers like `rsi` or `rdi`.  
+4. **Register Isolation**  
+   - The final code ensures that only `dh` is used for temporary storage, avoiding any modifications to critical registers like `rsi` or `rdi`.
 
 ---
 
