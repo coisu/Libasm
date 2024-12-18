@@ -336,7 +336,7 @@ ft_strcpy:
 
 ---
 
-## 4. Tech Stack
+## Tech Stack
 - Assembly:
 
     - x86-64 architecture for low-level implementation.
