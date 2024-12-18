@@ -289,9 +289,10 @@ ft_strcpy:
 - The shared usage of `rsi` and `rdi` between `ft_strcpy` and `ft_strdup` led to unexpected side effects.
 - The implicit changes caused by `lodsb` and `stosb` exacerbated these issues, resulting in incorrect copying behavior or memory corruption.
 
+---
 
 ### **What I Learned:**  
-- This approach, while elegant for small, isolated use cases, introduces implicit behavior that can conflict in larger, nested contexts. Understanding these limitations helped refine my future approaches to be more explicit and robust.
+> This approach, while elegant for small, isolated use cases, introduces implicit behavior that can conflict in larger, nested contexts. Understanding these limitations helped refine my future approaches to be more explicit and robust.
 
 #### **Explicit Behavior is Key**
 - Implicit register modifications, while convenient, can introduce hidden dependencies that conflict with other parts of the program.
@@ -304,8 +305,6 @@ ft_strcpy:
 #### **Clarity Over Complexity**
 - While advanced instructions like `lodsb` and `stosb` can simplify code in specific cases, they obscure the logic in more complex, nested scenarios.
 - Using straightforward, explicit memory operations improved both readability and reliability.
-
-This experience emphasized the importance of balancing advanced instruction usage with clarity and robustness, leading to a more reliable and maintainable implementation of `ft_strcpy`.
 
 
 
