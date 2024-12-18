@@ -1,6 +1,6 @@
 - [Automated Test](#1---1-automated-test)
 - [Manual Test](#manual-test)
-- [Assembly Basic - Register](#assembly-basic)
+- [Assembly Basic - Register](#2.-assembly-basic)
 - [Challenges and Failures](#challenges-and-failures)
 - [Tech Stack](#tech-stack)
 
