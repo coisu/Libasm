@@ -1,6 +1,6 @@
-- [Automated Test](#1---1-automated-test)
+- [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
-- [Assembly Basic - Register](#2.-assembly-basic)
+- [Assembly Basic - Register](#assembly-basic)
 - [Challenges and Failures](#challenges-and-failures)
 - [Tech Stack](#tech-stack)
 
@@ -33,18 +33,18 @@ This project is CI-ready with a configured GitLab CI pipeline:
 ---
 
 
-## 1. Usage
+## Usage
 ```
     clone git@github.com:coisu/Libasm.git
 ```
-### 1-1 Automated Test
+### Automated Test
 ```
     make test
 ```
 ![image](https://github.com/user-attachments/assets/2ebed980-8302-4f8e-8278-1e4839f9883c)
 ![image](https://github.com/user-attachments/assets/7563d8b0-9960-44db-a4dc-98a7cf03340c)
 
-### 1-2 Manual Test
+### Manual Test
 ```
     make manual
 ```
@@ -60,20 +60,20 @@ This project is CI-ready with a configured GitLab CI pipeline:
 
 
 
-## 2. Assembly Basic
+## Assembly Basic
 # Assembly: Basic Knowledge on Registers
 
 This document provides a beginner-friendly explanation of registers in assembly language, focusing on the x86-64 architecture. It includes an overview of register types, usage, and examples to help you get started.
 
 ---
 
-### 2-1 **What Are Registers?**
+### (1) **What Are Registers?**
 
 Registers are high-speed storage areas within the CPU. They are used to perform arithmetic operations, store temporary data, and handle memory addresses. In x86-64 assembly, registers are named based on their roles and sizes.
 
 ---
 
-### 2-2 **Register Types and Sizes**
+### (2) **Register Types and Sizes**
 
 Each register can be accessed in different sizes:
 - **64-bit registers**: `rax`, `rbx`, `rcx`, etc. (full 64-bit usage)
@@ -90,7 +90,7 @@ For example:
 
 ---
 
-### 2-3 **Categories of Registers**
+### (3) **Categories of Registers**
 
 #### a. General Purpose Registers
 Used for arithmetic, data storage, and memory addressing.
@@ -143,7 +143,7 @@ Stores the results of operations for conditional branching.
 
 ---
 
-### 2-4 **Basic Register Operations**
+### (4) **Basic Register Operations**
 
 #### Moving Data
 ```asm
@@ -165,7 +165,7 @@ je equal_label      ; Jump if equal
 jg greater_label    ; Jump if greater
 ```
 
-### 2-5 **Specialized String Operations**
+### (5) **Specialized String Operations**
 
 For string manipulation, specific registers and instructions are used:
 
@@ -181,7 +181,7 @@ rep movsb           ; Copy bytes from [rsi] to [rdi]
 ```
 
 
-### 2-6 **Function Call Example**
+### (6) **Function Call Example**
 
 #### C
 ```c
@@ -198,7 +198,7 @@ call add            ; Call the function
 ; Result is stored in rax
 ```
 
-### 2-7 Common Use Cases
+### (7) Common Use Cases
 
 #### **Arithmetic and Logic**
 - Use `rax` for calculations.
@@ -213,7 +213,7 @@ call add            ; Call the function
 
 ---
 
-### 2-8 Additional Tips
+### (8) Additional Tips
 
 #### **Avoid overwriting important registers**
 - Save registers with `push` before modifying and restore them with `pop`.
@@ -226,7 +226,7 @@ call add            ; Call the function
 
 ---
 
-### 2-9 Conclusion
+### (9) Conclusion
 
 Understanding registers is crucial for assembly programming. Familiarize yourself with their roles, calling conventions, and basic operations to write efficient and clear assembly code. Good luck 🎉
 
@@ -239,7 +239,7 @@ Understanding registers is crucial for assembly programming. Familiarize yoursel
 
 
 
-## 3. Challenges and Failures
+## Challenges and Failures
 While Implementing ft_strcpy
 - Below is a summary of the issues encountered while implementing the ft_strcpy function in assembly, the reasons behind the failures, and the lessons learned from each experience.
 
