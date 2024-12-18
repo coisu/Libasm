@@ -38,7 +38,7 @@ manual: prepare_objs $(SRC)
 	@for src in $(SRC); do \
 		obj_file=$$(basename $$src .s); \
 		$(NASM) $(NASMFLAGS) $$src -o $(OBJ_DIR)/$$obj_file.o; \
-		$(CC) $(CFLAGS) $(MANUAL_SRCS)/$$obj_file.c $(OBJ_DIR)/*.o -o $(MANUAL_TESTS)/$$obj_file -no-pie; \
+		$(CC) $(CFLAGS) manual_srcs/manual_tests.h $(MANUAL_SRCS)/$$obj_file.c $(OBJ_DIR)/*.o -o $(MANUAL_TESTS)/$$obj_file -no-pie; \
 	done
 	@echo "Manual testing binaries are located in the $(MANUAL_TESTS) directory."
 	@echo "Run individual binaries in $(MANUAL_TESTS) to manually test with STDIN."

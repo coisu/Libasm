@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include "manual_tests.h"
+
 
 ssize_t ft_write(int fd, const void *buf, size_t count);
 
@@ -10,14 +12,25 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    ssize_t ret = ft_write(1, argv[1], strlen(argv[1])); // Write to stdout
-    ft_write(1, "\n", 1); // Add newline after the output
+    write(1, YELLOW, strlen(YELLOW));
+    write(1, "@ ", 2);
+    ssize_t std_result = write(1, argv[1], strlen(argv[1]));
+    write(1, RESET, strlen(RESET));
+    write(1, "\n", 1);
+    printf("+ %zd\n", std_result);
 
-    if (ret < 0) {
-        perror("ft_write error");
-        return 1;
+    write(1, YELLOW, strlen(YELLOW));
+    write(1, "@ ", 2);
+    ssize_t ft_result = ft_write(1, argv[1], strlen(argv[1]));
+    write(1, RESET, strlen(RESET));
+    write(1, "\n", 1);
+    printf("- %zd\n", ft_result);
+
+    if (ft_result == std_result) {
+        printf("%s>> Success%s\n", GREEN, RESET);
+    } else {
+        printf("%s>> Failure%s\n", RED, RESET);
     }
 
-    printf("ft_write wrote %zd bytes\n", ret);
     return 0;
 }

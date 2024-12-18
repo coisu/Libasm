@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include "manual_tests.h"
+
 
 char *ft_strcpy(char *dst, const char *src);
 
@@ -9,10 +11,20 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char buffer[1024]; // Ensure the buffer is large enough
-    ft_strcpy(buffer, argv[1]);
+    char ft_buffer[1024], std_buffer[1024];
+    ft_strcpy(ft_buffer, argv[1]);
+    strcpy(std_buffer, argv[1]);
 
-    printf("Original string: '%s'\n", argv[1]);
-    printf("Copied string: '%s'\n", buffer);
+    printf("%s@ %s%s\n", YELLOW, argv[1], RESET);
+    printf("+ %s\n", std_buffer);
+    printf("%s@ %s%s\n", YELLOW, argv[1], RESET);
+    printf("- %s\n", ft_buffer);
+
+    if (strcmp(ft_buffer, std_buffer) == 0) {
+        printf("%s>> Success%s\n", GREEN, RESET);
+    } else {
+        printf("%s>> Failure%s\n", RED, RESET);
+    }
+
     return 0;
 }

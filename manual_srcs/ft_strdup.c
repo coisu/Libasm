@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "manual_tests.h"
+
 
 char *ft_strdup(const char *s);
 
@@ -10,14 +12,21 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    char *dup = ft_strdup(argv[1]);
-    if (!dup) {
-        perror("ft_strdup error");
-        return 1;
+    char *ft_result = ft_strdup(argv[1]);
+    char *std_result = strdup(argv[1]);
+
+    printf("%s@ %s%s\n", YELLOW, argv[1], RESET);
+    printf("+ %s\n", std_result);
+    printf("%s@ %s%s\n", YELLOW, argv[1], RESET);
+    printf("- %s\n", ft_result);
+
+    if (strcmp(ft_result, std_result) == 0) {
+        printf("%s>> Success%s\n", GREEN, RESET);
+    } else {
+        printf("%s>> Failure%s\n", RED, RESET);
     }
 
-    printf("Original string: '%s'\n", argv[1]);
-    printf("Duplicated string: '%s'\n", dup);
-    free(dup);
+    free(ft_result);
+    free(std_result);
     return 0;
 }
