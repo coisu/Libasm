@@ -1,8 +1,8 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
 - [Assembly Basic - Register](#assembly-basic)
-- [Challenges and Failures](challenges-and-failures)
-- [Tech Stack](tech-stack)
+- [Challenges and Failures](#challenges-and-failures)
+- [Tech Stack](#tech-stack)
 
 Libasm
 Master the art of low-level programming by implementing standard C library functions in Assembly language. Dive deeper into performance optimization and gain a better understanding of how functions work at the machine level!
