@@ -1,6 +1,6 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
-- [Assembly Basic - Register](#assemblt-basic)
+- [Assembly Basic - Register](#assembly-basic)
 
 
 ## Usage
