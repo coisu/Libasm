@@ -10,12 +10,14 @@ ft_write:
 	ret
 
 .error:
-	mov		r8, rax
-	call	__errno_location WRT ..plt
-	neg		r8
-	mov		[rax], r8
-	mov		rax, -1
-	ret
+    push    rbx
+    mov     rbx, rax
+    call    __errno_location WRT ..plt
+    neg     rbx
+    mov     [rax], rbx
+    mov     rax, -1
+    pop     rbx
+    ret
 
 
 ; syscall
