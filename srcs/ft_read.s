@@ -9,4 +9,3 @@ ft_read:
     syscall
     ret
 
-section .note.GNU-stack noalloc noexec nowrite progbits

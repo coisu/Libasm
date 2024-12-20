@@ -9,8 +9,6 @@ ft_write:
     syscall
     ret
 
-section .note.GNU-stack noalloc noexec nowrite progbits
-
 
 ; syscall
 ; grep __NR_write /usr/include/asm-generic/unistd.h

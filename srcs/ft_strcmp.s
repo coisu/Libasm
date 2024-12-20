@@ -13,6 +13,7 @@ ft_strcmp:
     movzx rdx, byte [rsi]
     cmp rcx, rdx
     jne .diff
+    
     test rcx, rcx
     je .end
 
@@ -22,14 +23,21 @@ ft_strcmp:
 
 .diff:
     sub rcx, rdx            ; rcx = rcx - rdx (ASCII)
-    mov rax, rcx            ; save result into rax
+    ;mov rax, rcx            ; return sub value
+
+    test rcx, rcx
+    jg .positive
+    mov rax, -1
+    ret
+
+.positive:
+    mov rax, 1               ; Set return value to 1
     ret
 
 .end:
     xor rax, rax            ; if equal rax = 0
     ret
 
-section .note.GNU-stack noalloc noexec nowrite progbits
 
 
 ; movzx

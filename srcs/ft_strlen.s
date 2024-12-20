@@ -15,4 +15,3 @@ ft_strlen:
 .done:
     ret                         ; Return (rax already contains the length)
 
-section .note.GNU-stack noalloc noexec nowrite progbits

@@ -14,7 +14,5 @@ ft_strcpy:
 
     ret                         ; dest address return
 
-section .note.GNU-stack noalloc noexec nowrite progbits
-
 
 ; dh = independent 16bit register, used for store read value from the memory

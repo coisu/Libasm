@@ -1,7 +1,7 @@
 # Compiler and Tools
 CC           = gcc
 NASM         = nasm
-CFLAGS       = -Wall -Wextra -Werror
+CFLAGS       = -Wall -Wextra -Werror -fPIE -fsanitize=address
 NASMFLAGS    = -f elf64
 
 # Directories
@@ -12,16 +12,16 @@ MANUAL_TESTS = manual_tests
 
 # Source and Object Files
 SRC          = $(addprefix $(SRC_DIR)/, ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s)
-OBJ          = $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.s=.o)))
+OBJ          = $(addprefix $(OBJ_DIR)/, $(notdir $(SRC:.s=.o))) 
 MAIN         = main.c
-TEST_BIN     = test_libasm
+TEST_BIN     = libasm.a
 
 # Default target
 all: $(TEST_BIN)
 
 # Create the test binary
 $(TEST_BIN): $(OBJ) $(MAIN)
-	$(CC) $(CFLAGS) $(OBJ) $(MAIN) -o $(TEST_BIN) -no-pie
+	$(CC) $(CFLAGS) $(OBJ) $(MAIN) -o $(TEST_BIN)
 
 # Compile .s files into .o files in the obj directory
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
@@ -38,17 +38,17 @@ manual: prepare_objs $(SRC)
 	@for src in $(SRC); do \
 		obj_file=$$(basename $$src .s); \
 		$(NASM) $(NASMFLAGS) $$src -o $(OBJ_DIR)/$$obj_file.o; \
-		$(CC) $(CFLAGS) manual_srcs/manual_tests.h $(MANUAL_SRCS)/$$obj_file.c $(OBJ_DIR)/*.o -o $(MANUAL_TESTS)/$$obj_file -no-pie; \
+		$(CC) $(CFLAGS) manual_srcs/manual_tests.h $(MANUAL_SRCS)/$$obj_file.c $(OBJ_DIR)/*.o -o $(MANUAL_TESTS)/$$obj_file; \
 	done
 	@echo "Manual testing binaries are located in the $(MANUAL_TESTS) directory."
 	@echo "Run individual binaries in $(MANUAL_TESTS) to manually test with STDIN."
 
 # Clean object files and test binary
 clean:
-	rm -rf $(OBJ_DIR) $(MANUAL_TESTS)
+	rm -rf $(OBJ_DIR) ft_write_output.txt
 
 fclean: clean
-	rm -f $(TEST_BIN)
+	rm -rf $(TEST_BIN) $(MANUAL_TESTS)
 
 # Rebuild everything
 re: fclean all
