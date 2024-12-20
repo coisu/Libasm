@@ -1,7 +1,7 @@
 # Compiler and Tools
 CC           = gcc
 NASM         = nasm
-CFLAGS       = -Wall -Wextra -Werror -fPIE -fsanitize=address
+CFLAGS       = -Wall -Wextra -Werror -fPIE -fsanitize=address  #-Wno-nonnull
 NASMFLAGS    = -f elf64
 
 # Directories

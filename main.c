@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <errno.h>
 // #include <limits.h>
 
 size_t ft_strlen(const char *str);
@@ -182,13 +183,9 @@ int main() {
     i = 0;
     success = true;
 
-    // Define test cases for invalid file descriptors
-    const int invalid_fds[] = {-1, 9999}; // -1 is an invalid fd; 9999 is likely not a valid open fd
-
-    // Open a file descriptor for writing test cases
+    const int invalid_fds[] = {-1, 9999};
     int fd = open("ft_write_output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
-    // Test normal cases
     while (test_cases[i]) {
         const char *msg = test_cases[i];
 
@@ -210,36 +207,96 @@ int main() {
         i++;
     }
 
-    // Test cases for invalid file descriptors
+    // invalid file descriptors
     for (size_t j = 0; j < sizeof(invalid_fds) / sizeof(invalid_fds[0]); j++) {
-        printf("%sTest case for invalid fd %d:%s\n", BOLD, invalid_fds[j], RESET);
-        ssize_t custom_result = ft_write(invalid_fds[j], "Testing error handling", 21); // Attempt to write
+        printf("%sTest case - invalid fd %d:%s\n", BOLD, invalid_fds[j], RESET);
+        errno = 0;
+        ssize_t custom_result = ft_write(invalid_fds[j], "Testing error handling", 21);
+        int custom_errno = errno;
+        errno = 0;
+        ssize_t std_result = write(invalid_fds[j], "Testing error handling", 21);
+        int std_errno = errno;
 
-        if (custom_result == -1) {
-            printf("%s@ Success: Correctly handled invalid fd%s\n", BOLD, RESET);
-        } else {
+        if (custom_result != std_result || custom_errno != std_errno) {
             success = false;
-            printf("%s@ Failure: Expected -1, got %ld%s\n", BOLD, custom_result, RESET);
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+        } else {
+            printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         }
     }
 
-    // Test with a closed file descriptor
-    int fd_closed = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    close(fd_closed); // Close the file descriptor
-    printf("%sTest case for closed fd:%s\n", BOLD, RESET);
-    ssize_t custom_result = ft_write(fd_closed, "This should fail", 15); // Attempt to write after closing
+    // closed file descriptor
+    {
+        int fd_closed = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        close(fd_closed);
+        printf("%sTest case - closed fd:%s\n", BOLD, RESET);
+        errno = 0;
+        ssize_t custom_result = ft_write(fd_closed, "This should fail", 15);
+        int custom_errno = errno;
+        errno = 0;
+        ssize_t std_result = write(fd_closed, "Testing error handling", 21);
+        int std_errno = errno;
 
-    if (custom_result == -1) {
-        printf("%s@ Success: Correctly handled closed fd%s\n", BOLD, RESET);
-    } else {
-        success = false;
-        printf("%s@ Failure: Expected -1, got %ld%s\n", BOLD, custom_result, RESET);
+        if (custom_result != std_result || custom_errno != std_errno) {
+            success = false;
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+        } else {
+            printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
     }
 
-    // Clean up
-    close(fd);
-    printf("%sif you need more detail, check 'ft_write_output.txt'%s\n", YELLOW, RESET);
+    // RDONLY test
+    {
+        int fd_readonly = open("readonly.txt", O_RDONLY);
+        printf("%sTest case - RDONLY fd:%s\n", BOLD, RESET);
+        ssize_t custom_result = ft_write(fd_readonly, "Testing SIGPIPE", 15);
+        int custom_errno = errno;
+        errno = 0;
+        ssize_t std_result = write(fd_readonly, "Testing SIGPIPE", 15);
+        int std_errno = errno;
 
+        if (custom_result != std_result || custom_errno != std_errno) {
+            success = false;
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+        } else {
+            printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+        close(fd_readonly);
+    }
+
+    // Null buffer test
+    {
+        printf("%sTest case - NULL msg:%s\n", BOLD, RESET);
+        errno = 0;
+        ssize_t custom_result = ft_write(fd, NULL, 10);
+        int custom_errno = errno;
+
+        if (custom_result != -1 || custom_errno != EFAULT) {
+            success = false;
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ Result: %d, Errno: %d (%s)%s\n", YELLOW, -1, EFAULT, "Bad address", RESET);
+            printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+        } else {
+            printf("%s+ Result: %d, Errno: %d (%s)%s\n", YELLOW, -1, EFAULT, "Bad address", RESET);
+            printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+    }
+    close(fd);
+
+    printf("%sif you need more detail, check 'ft_write_output.txt'%s\n", YELLOW, RESET);
     // Print overall test result
     if (success)
         printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
@@ -278,10 +335,8 @@ int main() {
             i++;
             continue;
         }
-
         ssize_t custom_result = 0;
         ssize_t std_result = 0;
-
         while (buf_size > 0) 
         {
             buf = malloc(buf_size);
@@ -305,19 +360,98 @@ int main() {
             } else 
                 break;
         }
-
         close(fd);
-
         if (custom_result != std_result) 
         {
             success = false;
-            printf("%s%s@ Test failed for file: %s%s\n", BOLD, RED, f, RESET);
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
             printf("  \t%s+ Standard: %ld bytes%s\n", YELLOW, std_result, RESET);
             printf("  \t%s- Custom  : %ld bytes%s\n\n", RED, custom_result, RESET);
         } 
         else 
-            printf("%s%s@ Success for file: %s%s\n\n", BOLD, BRIGHT_GREEN, f, RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
         i++;
+    }
+    // Invalid fd test
+    {
+        printf("%sTest case - invalid fd %d:%s\n", BOLD, -1, RESET);
+        fd = -1; 
+        char buf[100];
+        errno = 0;
+        ssize_t custom_result = ft_read(fd, buf, sizeof(buf));
+        int custom_errno = errno;
+        errno = 0;
+        ssize_t std_result = read(fd, buf, sizeof(buf));
+        int std_errno = errno;
+        if (custom_result != std_result || errno != EBADF) 
+        {
+            success = false;
+            printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+            printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+        } else {
+            printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+            printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+            printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+        }
+    }
+    // read dir test
+    {
+        printf("%sTest case - read dir:%s\n", BOLD, RESET);
+        fd = open(".", O_RDONLY);
+        if (fd == -1) 
+            perror("Error opening directory");
+        else
+        {
+            char buf[100];
+            errno = 0;
+            ssize_t custom_result = ft_read(fd, buf, sizeof(buf));
+            int custom_errno = errno;
+            errno = 0;
+            ssize_t std_result = read(fd, buf, sizeof(buf));
+            int std_errno = errno;
+            if (custom_result != std_result || custom_errno != std_errno) 
+            {
+                success = false;
+                printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+                printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+                printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+            } else {
+                printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+                printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+                printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+            }
+            close(fd);
+        }
+    }
+    // WRONLY test
+    {
+        printf("%sTest case - WRONLY:%s\n", BOLD, RESET);
+        fd = open("test.txt", O_WRONLY);
+        if (fd == -1) 
+            perror("Error opening file");
+        else
+        {
+            char buf[100];
+            errno = 0;
+            ssize_t custom_result = ft_read(fd, buf, sizeof(buf));
+            int custom_errno = errno;
+            errno = 0;
+            ssize_t std_result = read(fd, buf, sizeof(buf));
+            int std_errno = errno;
+            if (custom_result != std_result || custom_errno != std_errno) 
+            {
+                success = false;
+                printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
+                printf("  \t%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+                printf("  \t%s- Result: %ld, Errno: %d (%s)%s\n", RED, custom_result, custom_errno, strerror(custom_errno), RESET);
+            } else {
+                printf("%s+ Result: %ld, Errno: %d (%s)%s\n", YELLOW, std_result, std_errno, strerror(std_errno), RESET);
+                printf("%s- Result: %ld, Errno: %d (%s)%s\n", GREEN, custom_result, custom_errno, strerror(custom_errno), RESET);
+                printf("%s%s@ Success%s\n\n", BOLD, BRIGHT_GREEN, RESET);
+            }
+            close(fd);
+        }
     }
     if (success)
         printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);
