@@ -1,7 +1,7 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
 - [Challenges and Failures 1](#challenges-and-failures-1)
-- [Callee-Saved Registers](#callee-saved-registers)
+- [Callee-Saved Registers](#callee-saved-registers):star:
 - [Challenges and Failures 2](#challenges-and-failures-2)
 - [Assembly Basic - Register](#assembly-basic)
 - [Tech Stack](#tech-stack)
@@ -118,7 +118,7 @@ Proactively manage register usage to prevent data conflicts and ensure robust pr
 
 ---
 ---
-
+:star::star::star::star::star:
 ## Callee-Saved Registers
 
 ### **Callee-Saved Registers: Overview**
