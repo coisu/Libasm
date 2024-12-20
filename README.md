@@ -1,7 +1,8 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
 - [Assembly Basic - Register](#assembly-basic)
-- [Challenges and Failures](#challenges-and-failures)
+- [Challenges and Failures 1](#challenges-and-failures-1)
+- [Challenges and Failures 2](#challenges-and-failures-2)
 - [Tech Stack](#tech-stack)
 
 # Libasm
@@ -269,10 +270,62 @@ jmp .unconditional ; Always jump to ".unconditional"
 ---
 
 
+## Challenges and Failures 2
+> Ensuring Register Safety in Assembly
 
+When working with assembly, managing register values safely is a fundamental practice. Here's a summary of challenges and how to handle them effectively:
 
+### The Challenge: Preserving Register Values
+In assembly, registers are often used for temporary data storage during computations or function calls. However, failing to preserve register values can lead to unexpected behavior:
 
-## Challenges and Failures
+1. **Calling Convention Violations**:
+   - Some registers, like `rbx`, `rbp`, and `r12~r15`, are **callee-saved** registers. According to the x86-64 calling convention, functions must restore these registers to their original values before returning.
+   
+2. **Data Loss**:
+   - If a register's original value is overwritten without preservation, the program may encounter unpredictable errors when that value is accessed later.
+
+3. **Nested Function Calls**:
+   - A function that calls another function risks having its registers modified, leading to cascading failures if values are not restored properly.
+
+---
+
+### The Solution: Safe Register Management
+To avoid these pitfalls, always save and restore registers when they are used temporarily. There are two primary methods:
+
+#### 1. **Using `push` and `pop`**
+Save the current value of a register on the stack and restore it after usage:
+```asm
+push rbx          ; Save the current value of rbx
+mov rbx, rax      ; Use rbx for temporary storage
+pop rbx           ; Restore the original value of rbx
+```
+#### 2. Using Stack Frames
+Allocate space in the stack and store register values explicitly:
+```asm
+sub rsp, 8        ; Allocate 8 bytes on the stack
+mov [rsp], rbx    ; Save rbx in the stack
+mov rbx, rax      ; Use rbx for temporary storage
+mov rbx, [rsp]    ; Restore the original value of rbx
+add rsp, 8        ; Deallocate the stack space
+```
+---
+
+### Consequences of Unsafe Practices
+Failing to preserve registers can result in:
+
+Corrupted Data: Overwritten register values can interfere with program logic.
+Hard-to-Debug Errors: Unpredictable behavior makes debugging assembly code significantly more challenging.
+Broken Functionality: Violating the calling convention can cause crashes or incorrect results in higher-level functions.
+
+### Key Takeaway
+To ensure safe and reliable assembly code:
+
+Always follow the push-then-pop or stack frame methodology when using temporary registers.
+Adhere to calling conventions to maintain the integrity of callee-saved registers.
+Proactively manage register usage to prevent data conflicts and ensure robust program behavior.
+
+---
+## Challenges and Failures 2
 
 > Below is a summary of the issues encountered while implementing the `ft_strcpy` function in assembly, the reasons behind the failures, and the lessons learned from each experience.
 
