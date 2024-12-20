@@ -1,6 +1,7 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
 - [Challenges and Failures 1](#challenges-and-failures-1)
+- [Callee-Saved Registers](#callee-saved-registers)
 - [Challenges and Failures 2](#challenges-and-failures-2)
 - [Assembly Basic - Register](#assembly-basic)
 - [Tech Stack](#tech-stack)
@@ -114,6 +115,78 @@ To ensure safe and reliable assembly code:
 Always follow the push-then-pop or stack frame methodology when using temporary registers.
 Adhere to calling conventions to maintain the integrity of callee-saved registers.
 Proactively manage register usage to prevent data conflicts and ensure robust program behavior.
+
+---
+---
+
+## Callee-Saved Registers
+
+### **Callee-Saved Registers: Overview**
+> Callee-Saved registers are part of the calling convention used to preserve the state of specific registers across function calls. These registers must be saved and restored by the called function (Callee) if it intends to use them.
+
+---
+
+### **Key Features of Callee-Saved Registers**
+#### **1. Preservation Obligation**
+- The **Callee** must:
+  - **Save** (push) the register values before using them.
+  - **Restore** (pop) the original values before returning.
+
+#### **2. Primary Purpose**
+- Ensures that the **Caller**'s expected register states remain intact.
+- Prevents data loss or corruption when the Callee modifies registers.
+
+#### **3. Usage Pattern**
+- **Save**: The Callee pushes register values onto the stack at the beginning of the function.
+- **Restore**: The Callee pops the values from the stack before returning.
+
+---
+
+### **Callee-Saved Registers in x86-64**
+According to the **System V AMD64 ABI**, the following registers are designated as Callee-Saved:
+
+| **Register** | **Purpose**                         |
+|--------------|-------------------------------------|
+| `rbx`        | Temporary storage                  |
+| `rsp`        | Stack pointer                      |
+| `rbp`        | Base pointer (frame pointer)       |
+| `r12`        | Temporary storage                  |
+| `r13`        | Temporary storage                  |
+| `r14`        | Temporary storage                  |
+| `r15`        | Temporary storage                  |
+
+---
+
+### **Callee-Saved vs. Caller-Saved Registers**
+
+| **Feature**             | **Callee-Saved**                | **Caller-Saved**                |
+|--------------------------|----------------------------------|----------------------------------|
+| **Preservation Responsibility** | Callee                        | Caller                        |
+| **Examples**             | `rbx`, `rsp`, `rbp`, `r12-r15` | `rax`, `rcx`, `rdx`, `r8-r11`  |
+| **Save Timing**          | Before Callee uses the register | Before Caller makes the call   |
+| **Restore Timing**       | Before Callee returns           | After the function call        |
+
+---
+
+### **Advantages of Callee-Saved Registers**
+#### **1. Simplified Design**
+- The Caller does not need to save or restore these registers.
+- The Callee focuses only on its own register usage.
+
+#### **2. Efficient Use of Registers**
+- Avoids repeated save/restore operations by the Caller at each function call site.
+- Provides a reliable and consistent environment for function execution.
+
+---
+
+### **Conclusion**
+Callee-Saved registers play a critical role in maintaining data integrity across function calls. By adhering to these conventions, programs with deep or complex call hierarchies can ensure stability and predictable behavior.
+
+
+
+
+
+
 
 ---
 ## Challenges and Failures 2
