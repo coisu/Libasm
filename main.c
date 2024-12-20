@@ -182,7 +182,13 @@ int main() {
     i = 0;
     success = true;
 
+    // Define test cases for invalid file descriptors
+    const int invalid_fds[] = {-1, 9999}; // -1 is an invalid fd; 9999 is likely not a valid open fd
+
+    // Open a file descriptor for writing test cases
     int fd = open("ft_write_output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    // Test normal cases
     while (test_cases[i]) {
         const char *msg = test_cases[i];
 
@@ -196,8 +202,6 @@ int main() {
         if (custom_result != std_result) {
             success = false;
             printf("%s%s@ Test failed%s\n", BOLD, RED, RESET);
-            // write(2, msg, strlen(msg));
-            // write(2, "\n", 1);
             printf("  \t%s+ %ld%s\n", YELLOW, std_result, RESET);
             printf("  \t%s- %ld%s\n", RED, custom_result, RESET);
         } else {
@@ -205,6 +209,34 @@ int main() {
         }
         i++;
     }
+
+    // Test cases for invalid file descriptors
+    for (size_t j = 0; j < sizeof(invalid_fds) / sizeof(invalid_fds[0]); j++) {
+        printf("%sTest case for invalid fd %d:%s\n", BOLD, invalid_fds[j], RESET);
+        ssize_t custom_result = ft_write(invalid_fds[j], "Testing error handling", 21); // Attempt to write
+
+        if (custom_result == -1) {
+            printf("%s@ Success: Correctly handled invalid fd%s\n", BOLD, RESET);
+        } else {
+            success = false;
+            printf("%s@ Failure: Expected -1, got %ld%s\n", BOLD, custom_result, RESET);
+        }
+    }
+
+    // Test with a closed file descriptor
+    int fd_closed = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    close(fd_closed); // Close the file descriptor
+    printf("%sTest case for closed fd:%s\n", BOLD, RESET);
+    ssize_t custom_result = ft_write(fd_closed, "This should fail", 15); // Attempt to write after closing
+
+    if (custom_result == -1) {
+        printf("%s@ Success: Correctly handled closed fd%s\n", BOLD, RESET);
+    } else {
+        success = false;
+        printf("%s@ Failure: Expected -1, got %ld%s\n", BOLD, custom_result, RESET);
+    }
+
+    // Clean up
     close(fd);
     printf("%sif you need more detail, check 'ft_write_output.txt'%s\n", YELLOW, RESET);
 
@@ -215,6 +247,7 @@ int main() {
         printf("%s%s>>>>>>>>>>>>>>> FAILURE <<<<<<<<<<<<<<<%s\n", BOLD, RED, RESET);
 
     i = 0;
+
     
 
 // - READ --------------------------------------------------------------------------

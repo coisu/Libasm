@@ -1,13 +1,21 @@
 section .text
     global ft_write
+    extern __errno_location
 
 ft_write:
     mov rax, 1            ; syscall number
-;   mov rdi, rdi          ; 2st parm
-;   mov rsi, rsi          ; 2nd parm
-;   mov rdx, rdx          ; 3rd parm
     syscall
-    ret
+	cmp		rax, 0
+	jl		.error
+	ret
+
+.error:
+	mov		r8, rax
+	call	__errno_location WRT ..plt
+	neg		r8
+	mov		[rax], r8
+	mov		rax, -1
+	ret
 
 
 ; syscall
