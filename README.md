@@ -1,8 +1,8 @@
 - [Automated Test](#automated-test)
 - [Manual Test](#manual-test)
-- [Assembly Basic - Register](#assembly-basic)
 - [Challenges and Failures 1](#challenges-and-failures-1)
 - [Challenges and Failures 2](#challenges-and-failures-2)
+- [Assembly Basic - Register](#assembly-basic)
 - [Tech Stack](#tech-stack)
 
 # Libasm
@@ -59,6 +59,183 @@ This project is CI-ready with a configured GitLab CI pipeline:
 ```
 ![image](https://github.com/user-attachments/assets/f4b0d86c-419c-4042-a333-a8e7fb1e8ee9)
 
+
+
+## Challenges and Failures 1
+> Ensuring Register Safety in Assembly
+
+When working with assembly, managing register values safely is a fundamental practice. Here's a summary of challenges and how to handle them effectively:
+
+### The Challenge: Preserving Register Values
+In assembly, registers are often used for temporary data storage during computations or function calls. However, failing to preserve register values can lead to unexpected behavior:
+
+1. **Calling Convention Violations**:
+   - Some registers, like `rbx`, `rbp`, and `r12~r15`, are **callee-saved** registers. According to the x86-64 calling convention, functions must restore these registers to their original values before returning.
+   
+2. **Data Loss**:
+   - If a register's original value is overwritten without preservation, the program may encounter unpredictable errors when that value is accessed later.
+
+3. **Nested Function Calls**:
+   - A function that calls another function risks having its registers modified, leading to cascading failures if values are not restored properly.
+
+---
+
+### The Solution: Safe Register Management
+To avoid these pitfalls, always save and restore registers when they are used temporarily. There are two primary methods:
+
+#### 1. **Using `push` and `pop`**
+Save the current value of a register on the stack and restore it after usage:
+```asm
+push rbx          ; Save the current value of rbx
+mov rbx, rax      ; Use rbx for temporary storage
+pop rbx           ; Restore the original value of rbx
+```
+#### 2. Using Stack Frames
+Allocate space in the stack and store register values explicitly:
+```asm
+sub rsp, 8        ; Allocate 8 bytes on the stack
+mov [rsp], rbx    ; Save rbx in the stack
+mov rbx, rax      ; Use rbx for temporary storage
+mov rbx, [rsp]    ; Restore the original value of rbx
+add rsp, 8        ; Deallocate the stack space
+```
+---
+
+### Consequences of Unsafe Practices
+Failing to preserve registers can result in:
+
+Corrupted Data: Overwritten register values can interfere with program logic.
+Hard-to-Debug Errors: Unpredictable behavior makes debugging assembly code significantly more challenging.
+Broken Functionality: Violating the calling convention can cause crashes or incorrect results in higher-level functions.
+
+### Key Takeaway
+To ensure safe and reliable assembly code:
+
+Always follow the push-then-pop or stack frame methodology when using temporary registers.
+Adhere to calling conventions to maintain the integrity of callee-saved registers.
+Proactively manage register usage to prevent data conflicts and ensure robust program behavior.
+
+---
+## Challenges and Failures 2
+
+> Below is a summary of the issues encountered while implementing the `ft_strcpy` function in assembly, the reasons behind the failures, and the lessons learned from each experience.
+
+#### Original Approach with `lodsb`, `stosb`, and `jne`
+What was tried:
+> I aimed to simplify memory operations by using `lodsb` to load bytes and `stosb` to store bytes, combined with conditional jumps (`jne`) for null termination checks.
+
+
+### Original Code:
+```asm
+section .text
+global ft_strcpy
+
+ft_strcpy:
+                        ; rdi = dest, rsi = src
+    cld                 ; DF = 0 auto inc 1
+    mov rax, rdi        ; rax = dest address
+
+.loop:
+                        ; rdi = rsi memory address, al = read value from the memory
+    lodsb               ; al = *rsi, rsi++
+    stosb               ; rdi[0] = p, rdi++
+    cmp al, 0           ; if al == '\0', set Zero Flag
+    jne .loop           ; if not null terminator, loop
+    ret
+```
+
+
+---
+
+### **Issues and Lessons Learned**
+
+#### **Implicit Behavior of `lodsb` and `stosb`**
+- The `lodsb` and `stosb` instructions implicitly modify the `rsi` and `rdi` registers by incrementing or decrementing them based on the direction flag (`DF`).
+- While this implicit behavior worked fine in isolated tests, it caused conflicts when `ft_strcpy` was called within `ft_strdup`, as these registers needed to remain intact for correct memory operations.
+
+#### **Direction Flag Dependency (`cld`)**
+- The `cld` instruction was used to explicitly clear the direction flag (`DF`) to ensure forward memory traversal.
+- However, if another function altered the `DF` before calling `ft_strcpy` and failed to reset it, the behavior of `lodsb` and `stosb` became unpredictable.
+- This reliance on external factors made `ft_strcpy` fragile and context-dependent in broader programs.
+
+#### **Reduced Debuggability**
+- The implicit memory operations of `lodsb` and `stosb` made debugging more difficult, as changes to `rsi` and `rdi` were not directly visible.
+- Errors in larger or nested contexts were harder to trace, making the debugging process inefficient and time-consuming.
+
+#### **Register Modifications in Broader Contexts**
+- The shared usage of `rsi` and `rdi` between `ft_strcpy` and `ft_strdup` led to unexpected side effects.
+- The implicit changes caused by `lodsb` and `stosb` exacerbated these issues, resulting in incorrect copying behavior or memory corruption.
+
+---
+
+### **What I Learned:**  
+> This approach, while elegant for small, isolated use cases, introduces implicit behavior that can conflict in larger, nested contexts. Understanding these limitations helped refine my future approaches to be more explicit and robust.
+
+#### **Explicit Behavior is Key**
+- Implicit register modifications, while convenient, can introduce hidden dependencies that conflict with other parts of the program.
+- Explicitly managing registers and memory operations reduces the risk of unintended side effects and improves maintainability.
+
+#### **Avoid Contextual Fragility**
+- Functions should not rely on external conditions (e.g., the state of the direction flag) to operate correctly.
+- By designing `ft_strcpy` to be self-contained and independent, it became more robust and reusable.
+
+#### **Clarity Over Complexity**
+- While advanced instructions like `lodsb` and `stosb` can simplify code in specific cases, they obscure the logic in more complex, nested scenarios.
+- Using straightforward, explicit memory operations improved both readability and reliability.
+
+
+
+---
+
+
+### Final Code:
+```asm
+section .text
+global ft_strcpy
+
+ft_strcpy:
+    mov rax, rdi
+    xor rcx, rcx                ; i = 0
+
+.loop:
+    mov dh, byte [rsi + rcx]    ; dh = src[i]
+    mov byte [rdi + rcx], dh
+    inc rcx                     ; i++
+    test dh, dh                 ; test dh == '\0'
+    jnz .loop                   ; if not null, continue loop
+
+    ret
+```
+---
+
+### **Key Changes**
+
+1. **Explicit Control**  
+   - Replaced `lodsb` and `stosb` with explicit `mov` instructions:  
+     - `mov dh, byte [rsi + rcx]` for loading.  
+     - `mov byte [rdi + rcx], dh` for storing.  
+   - This ensures that `rsi` and `rdi` are not modified unintentionally.
+
+2. **Removed Direction Flag Dependency**  
+   - Eliminated the need for `cld` by using explicit address calculations (`rsi + rcx`, `rdi + rcx`).  
+   - This makes the function independent of the direction flag, ensuring consistent behavior.
+
+3. **Improved Debuggability**  
+   - By explicitly showing all memory operations, the function becomes easier to debug and trace in case of errors.
+
+4. **Register Isolation**  
+   - The final code ensures that only `dh` is used for temporary storage, avoiding any modifications to critical registers like `rsi` or `rdi`.
+
+---
+
+### **Conclusion**
+
+- The original code relied on implicit behavior (`lodsb` and `stosb`) and was dependent on the direction flag (`DF`), making it fragile and prone to bugs in nested contexts.  
+
+- The final code resolves these issues by adopting explicit memory operations, removing direction flag dependency, and improving register isolation, resulting in a robust implementation suitable for broader use cases.
+
+
+---
 
 
 ## Assembly Basic
@@ -269,182 +446,6 @@ jmp .unconditional ; Always jump to ".unconditional"
 ```
 ---
 
-
-## Challenges and Failures 2
-> Ensuring Register Safety in Assembly
-
-When working with assembly, managing register values safely is a fundamental practice. Here's a summary of challenges and how to handle them effectively:
-
-### The Challenge: Preserving Register Values
-In assembly, registers are often used for temporary data storage during computations or function calls. However, failing to preserve register values can lead to unexpected behavior:
-
-1. **Calling Convention Violations**:
-   - Some registers, like `rbx`, `rbp`, and `r12~r15`, are **callee-saved** registers. According to the x86-64 calling convention, functions must restore these registers to their original values before returning.
-   
-2. **Data Loss**:
-   - If a register's original value is overwritten without preservation, the program may encounter unpredictable errors when that value is accessed later.
-
-3. **Nested Function Calls**:
-   - A function that calls another function risks having its registers modified, leading to cascading failures if values are not restored properly.
-
----
-
-### The Solution: Safe Register Management
-To avoid these pitfalls, always save and restore registers when they are used temporarily. There are two primary methods:
-
-#### 1. **Using `push` and `pop`**
-Save the current value of a register on the stack and restore it after usage:
-```asm
-push rbx          ; Save the current value of rbx
-mov rbx, rax      ; Use rbx for temporary storage
-pop rbx           ; Restore the original value of rbx
-```
-#### 2. Using Stack Frames
-Allocate space in the stack and store register values explicitly:
-```asm
-sub rsp, 8        ; Allocate 8 bytes on the stack
-mov [rsp], rbx    ; Save rbx in the stack
-mov rbx, rax      ; Use rbx for temporary storage
-mov rbx, [rsp]    ; Restore the original value of rbx
-add rsp, 8        ; Deallocate the stack space
-```
----
-
-### Consequences of Unsafe Practices
-Failing to preserve registers can result in:
-
-Corrupted Data: Overwritten register values can interfere with program logic.
-Hard-to-Debug Errors: Unpredictable behavior makes debugging assembly code significantly more challenging.
-Broken Functionality: Violating the calling convention can cause crashes or incorrect results in higher-level functions.
-
-### Key Takeaway
-To ensure safe and reliable assembly code:
-
-Always follow the push-then-pop or stack frame methodology when using temporary registers.
-Adhere to calling conventions to maintain the integrity of callee-saved registers.
-Proactively manage register usage to prevent data conflicts and ensure robust program behavior.
-
----
-## Challenges and Failures 2
-
-> Below is a summary of the issues encountered while implementing the `ft_strcpy` function in assembly, the reasons behind the failures, and the lessons learned from each experience.
-
-#### Original Approach with `lodsb`, `stosb`, and `jne`
-What was tried:
-> I aimed to simplify memory operations by using `lodsb` to load bytes and `stosb` to store bytes, combined with conditional jumps (`jne`) for null termination checks.
-
-
-### Original Code:
-```asm
-section .text
-global ft_strcpy
-
-ft_strcpy:
-                        ; rdi = dest, rsi = src
-    cld                 ; DF = 0 auto inc 1
-    mov rax, rdi        ; rax = dest address
-
-.loop:
-                        ; rdi = rsi memory address, al = read value from the memory
-    lodsb               ; al = *rsi, rsi++
-    stosb               ; rdi[0] = p, rdi++
-    cmp al, 0           ; if al == '\0', set Zero Flag
-    jne .loop           ; if not null terminator, loop
-    ret
-```
-
-
----
-
-### **Issues and Lessons Learned**
-
-#### **Implicit Behavior of `lodsb` and `stosb`**
-- The `lodsb` and `stosb` instructions implicitly modify the `rsi` and `rdi` registers by incrementing or decrementing them based on the direction flag (`DF`).
-- While this implicit behavior worked fine in isolated tests, it caused conflicts when `ft_strcpy` was called within `ft_strdup`, as these registers needed to remain intact for correct memory operations.
-
-#### **Direction Flag Dependency (`cld`)**
-- The `cld` instruction was used to explicitly clear the direction flag (`DF`) to ensure forward memory traversal.
-- However, if another function altered the `DF` before calling `ft_strcpy` and failed to reset it, the behavior of `lodsb` and `stosb` became unpredictable.
-- This reliance on external factors made `ft_strcpy` fragile and context-dependent in broader programs.
-
-#### **Reduced Debuggability**
-- The implicit memory operations of `lodsb` and `stosb` made debugging more difficult, as changes to `rsi` and `rdi` were not directly visible.
-- Errors in larger or nested contexts were harder to trace, making the debugging process inefficient and time-consuming.
-
-#### **Register Modifications in Broader Contexts**
-- The shared usage of `rsi` and `rdi` between `ft_strcpy` and `ft_strdup` led to unexpected side effects.
-- The implicit changes caused by `lodsb` and `stosb` exacerbated these issues, resulting in incorrect copying behavior or memory corruption.
-
----
-
-### **What I Learned:**  
-> This approach, while elegant for small, isolated use cases, introduces implicit behavior that can conflict in larger, nested contexts. Understanding these limitations helped refine my future approaches to be more explicit and robust.
-
-#### **Explicit Behavior is Key**
-- Implicit register modifications, while convenient, can introduce hidden dependencies that conflict with other parts of the program.
-- Explicitly managing registers and memory operations reduces the risk of unintended side effects and improves maintainability.
-
-#### **Avoid Contextual Fragility**
-- Functions should not rely on external conditions (e.g., the state of the direction flag) to operate correctly.
-- By designing `ft_strcpy` to be self-contained and independent, it became more robust and reusable.
-
-#### **Clarity Over Complexity**
-- While advanced instructions like `lodsb` and `stosb` can simplify code in specific cases, they obscure the logic in more complex, nested scenarios.
-- Using straightforward, explicit memory operations improved both readability and reliability.
-
-
-
----
-
-
-### Final Code:
-```asm
-section .text
-global ft_strcpy
-
-ft_strcpy:
-    mov rax, rdi
-    xor rcx, rcx                ; i = 0
-
-.loop:
-    mov dh, byte [rsi + rcx]    ; dh = src[i]
-    mov byte [rdi + rcx], dh
-    inc rcx                     ; i++
-    test dh, dh                 ; test dh == '\0'
-    jnz .loop                   ; if not null, continue loop
-
-    ret
-```
----
-
-### **Key Changes**
-
-1. **Explicit Control**  
-   - Replaced `lodsb` and `stosb` with explicit `mov` instructions:  
-     - `mov dh, byte [rsi + rcx]` for loading.  
-     - `mov byte [rdi + rcx], dh` for storing.  
-   - This ensures that `rsi` and `rdi` are not modified unintentionally.
-
-2. **Removed Direction Flag Dependency**  
-   - Eliminated the need for `cld` by using explicit address calculations (`rsi + rcx`, `rdi + rcx`).  
-   - This makes the function independent of the direction flag, ensuring consistent behavior.
-
-3. **Improved Debuggability**  
-   - By explicitly showing all memory operations, the function becomes easier to debug and trace in case of errors.
-
-4. **Register Isolation**  
-   - The final code ensures that only `dh` is used for temporary storage, avoiding any modifications to critical registers like `rsi` or `rdi`.
-
----
-
-### **Conclusion**
-
-- The original code relied on implicit behavior (`lodsb` and `stosb`) and was dependent on the direction flag (`DF`), making it fragile and prone to bugs in nested contexts.  
-
-- The final code resolves these issues by adopting explicit memory operations, removing direction flag dependency, and improving register isolation, resulting in a robust implementation suitable for broader use cases.
-
-
----
 
 ## Tech Stack
 - Assembly:
