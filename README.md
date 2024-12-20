@@ -226,13 +226,46 @@ call add            ; Call the function
 
 ---
 
-### (9) Conclusion
 
-Understanding registers is crucial for assembly programming. Familiarize yourself with their roles, calling conventions, and basic operations to write efficient and clear assembly code. Good luck 🎉
+### (9) x86-64 Jump Instructions Cheat Sheet
 
+| **Instruction** | **Meaning**                           | **Condition**                                                  |
+|------------------|---------------------------------------|----------------------------------------------------------------|
+| `jmp`           | Unconditional jump                   | Always jumps to the specified address or label.               |
+| `je` / `jz`     | Jump if equal / zero                 | ZF (Zero Flag) is set (e.g., result of comparison is zero).    |
+| `jne` / `jnz`   | Jump if not equal / not zero         | ZF is clear (e.g., result of comparison is non-zero).          |
+| `jg` / `jnle`   | Jump if greater                      | ZF is clear and SF == OF (signed comparison).                 |
+| `jge` / `jnl`   | Jump if greater or equal             | SF == OF (signed comparison).                                 |
+| `jl` / `jnge`   | Jump if less                        | SF != OF (signed comparison).                                 |
+| `jle` / `jng`   | Jump if less or equal                | ZF is set or SF != OF (signed comparison).                    |
+| `ja` / `jnbe`   | Jump if above                       | CF and ZF are clear (unsigned comparison).                    |
+| `jae` / `jnc`   | Jump if above or equal               | CF is clear (unsigned comparison).                            |
+| `jb` / `jnae`   | Jump if below                       | CF is set (unsigned comparison).                              |
+| `jbe` / `jna`   | Jump if below or equal               | CF is set or ZF is set (unsigned comparison).                 |
+| `jo`            | Jump if overflow                    | OF (Overflow Flag) is set.                                    |
+| `jno`           | Jump if not overflow                | OF is clear.                                                  |
+| `js`            | Jump if sign                        | SF (Sign Flag) is set.                                        |
+| `jns`           | Jump if not sign                    | SF is clear.                                                  |
+| `jp` / `jpe`    | Jump if parity even                 | PF (Parity Flag) is set (even number of 1 bits).              |
+| `jnp` / `jpo`   | Jump if parity odd                  | PF is clear (odd number of 1 bits).                          |
+| `jcxz`          | Jump if `rcx` is zero               | `rcx` is zero (used in loops).                                |
+| `jecxz`         | Jump if `ecx` is zero               | `ecx` is zero (used in loops).                                |
 
+## **Key Flag Descriptions**
+- **ZF (Zero Flag)**: Set when the result of an operation is zero.
+- **CF (Carry Flag)**: Set when an unsigned operation generates a carry/borrow.
+- **SF (Sign Flag)**: Set when the result of an operation is negative.
+- **OF (Overflow Flag)**: Set when a signed operation causes an overflow.
+- **PF (Parity Flag)**: Set if the number of 1 bits in the result is even.
 
-
+## **Examples**
+```asm
+cmp rax, rbx       ; Compare rax and rbx
+je .equal          ; Jump to ".equal" if rax == rbx
+jg .greater        ; Jump to ".greater" if rax > rbx (signed)
+jb .below          ; Jump to ".below" if rax < rbx (unsigned)
+jmp .unconditional ; Always jump to ".unconditional"
+```
 ---
 
 
