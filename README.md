@@ -43,7 +43,7 @@ This project is CI-ready with a configured GitLab CI pipeline:
 ```
     make test
 ```
-![image](https://github.com/user-attachments/assets/2ebed980-8302-4f8e-8278-1e4839f9883c)
+![image](https://github.com/user-attachments/assets/11555a4e-61f0-4950-90e8-41cc81d67cdb)
 ![image](https://github.com/user-attachments/assets/7563d8b0-9960-44db-a4dc-98a7cf03340c)
 
 ### Manual Test
