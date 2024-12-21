@@ -3,29 +3,46 @@ section .text
     extern malloc
     extern ft_strlen
     extern ft_strcpy
+    extern __errno_location
 
+; rdi 1st, rsi 2nd
 ft_strdup:
-    test rdi, rdi               ; Check if input string is NULL
-    jz .null_input              ; Handle NULL input
+    push rbx
 
-    push rdi                    ; Save input string (s1) on the stack
-    call ft_strlen              ; Calculate the length of the string
-    inc rax                     ; Add 1 for null terminator
-    mov rdi, rax                ; Pass size to malloc
-    call malloc WRT ..plt                 ; Allocate memory
-    test rax, rax               ; Check if malloc returned NULL
-    jz .malloc_failed           ; Handle malloc failure
+    test rdi, rdi               ; NULL input
+    jz .null_input
 
-    cld
-    mov rdi, rax                ; Set destination pointer
-    pop rsi                     ; Restore source string
-    call ft_strcpy              ; Copy the string
-    ret                         ; Return the allocated memory pointer
+    mov rbx, rdi                ; rbx = source str
+    call ft_strlen
+    inc rax                     ; for \0
+
+    mov rdi, rax
+    call malloc WRT ..plt
+    test rax, rax
+    jz .malloc_failed
+
+    cld                         ; Clear direction flag for string operations
+    mov rdi, rax
+    mov rsi, rbx
+    call ft_strcpy
+
+    pop rbx
+    ret
 
 .malloc_failed:
-    xor rax, rax                ; Return NULL
+    call __errno_location WRT ..plt
+    mov qword [rax], 12             ; ENOMEM (12), dword for constant value(immediate value)
+                                    ; no need dword between registers
+    xor rax, rax                    ; NULL
+    pop rbx
     ret
 
 .null_input:
     xor rax, rax                ; Return NULL
+    pop rbx
     ret
+
+; byte   8 bits
+; word  16 bits
+; dword 32 bits
+; qword 64 bits

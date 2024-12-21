@@ -489,7 +489,6 @@ int main() {
         printf("\n");
         i++;
     }
-
     // Print overall test result
     if (success)
         printf("%s%s>>>>>>>>>>>>>>> SUCCESS <<<<<<<<<<<<<<<%s\n", BOLD, GREEN, RESET);

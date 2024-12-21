@@ -23,7 +23,7 @@ ft_strcmp:
 
 .diff:
     sub rcx, rdx            ; rcx = rcx - rdx (ASCII)
-    ;mov rax, rcx            ; return sub value
+    ;mov rax, rcx           ; return sub value, issue with -fsanitize=address
 
     test rcx, rcx
     jg .positive
